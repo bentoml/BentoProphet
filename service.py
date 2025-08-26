@@ -19,8 +19,9 @@ def fig_to_pil(fig):
     pil_img = PILImage.open(buf)
     return pil_img
 
+image = bentoml.images.Image(python_version="3.11").requirements_file("requirements.txt")
 
-@bentoml.service
+@bentoml.service(image=image)
 class ProphetService:
     model_ref = bentoml.models.BentoModel("prophet_model:latest")
 
