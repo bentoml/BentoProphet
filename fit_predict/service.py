@@ -7,6 +7,9 @@ from PIL.Image import Image
 
 import matplotlib as plt
 
+from typing import Annotated
+from bentoml.validators import DataframeSchema
+
 plt.use("Agg")  # Use a non-interactive backend
 
 
@@ -19,16 +22,23 @@ def fig_to_pil(fig):
     pil_img = PILImage.open(buf)
     return pil_img
 
-image = bentoml.images.Image(python_version="3.11").requirements_file("requirements.txt")
+
+image = bentoml.images.Image(python_version="3.11").requirements_file(
+    "requirements.txt"
+)
+
+DF_TYPE = Annotated[
+    pd.DataFrame, DataframeSchema(orient="records", columns=["ds", "y"])
+]
+
 
 @bentoml.service(image=image)
 class ProphetService:
-
     @bentoml.api()
-    def train_and_predict(self, data: pd.DataFrame, period: int = 365) -> pd.DataFrame:
+    def train_and_predict(self, data: DF_TYPE, period: int = 365) -> pd.DataFrame:
         """
         Train a Prophet model on the provided data and make predictions
-        
+
         Args:
             data: DataFrame with 'ds' (date) and 'y' (target) columns
             period: Number of days to predict into the future
@@ -36,17 +46,17 @@ class ProphetService:
         # Initialize and train the model
         model = Prophet()
         model.fit(data)
-        
+
         # Make predictions
         future = model.make_future_dataframe(periods=period)
         forecast = model.predict(future)
         return forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].tail(period)
 
     @bentoml.api()
-    def plot(self, data: pd.DataFrame, period: int = 365) -> Image:
+    def plot(self, data: DF_TYPE, period: int = 365) -> Image:
         """
         Train a Prophet model and generate a plot of the forecast
-        
+
         Args:
             data: DataFrame with 'ds' (date) and 'y' (target) columns
             period: Number of days to predict into the future
@@ -54,7 +64,7 @@ class ProphetService:
         # Initialize and train the model
         model = Prophet()
         model.fit(data)
-        
+
         # Make predictions and plot
         future = model.make_future_dataframe(periods=period)
         forecast = model.predict(future)
@@ -63,10 +73,10 @@ class ProphetService:
         return fig_to_pil(fig)
 
     @bentoml.api()
-    def plot_components(self, data: pd.DataFrame, period: int = 365) -> Image:
+    def plot_components(self, data: DF_TYPE, period: int = 365) -> Image:
         """
         Train a Prophet model and generate component plots of the forecast
-        
+
         Args:
             data: DataFrame with 'ds' (date) and 'y' (target) columns
             days: Number of days to predict into the future
@@ -74,7 +84,7 @@ class ProphetService:
         # Initialize and train the model
         model = Prophet()
         model.fit(data)
-        
+
         # Make predictions and plot components
         future = model.make_future_dataframe(periods=period)
         forecast = model.predict(future)
