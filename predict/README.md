@@ -49,7 +49,7 @@ The Service is accessible at [http://localhost:3000](http://localhost:3000/). Yo
 curl -s \
      -X POST \
      -H "Content-Type: application/json" \
-     -d '{"days": 30}' \
+     -d '{"period": 30}' \
      http://localhost:3000/predict
 ```
 
@@ -59,7 +59,7 @@ curl -s \
 curl -s \
      -X POST \
      -H "Content-Type: application/json" \
-     -d '{"days": 90}' \
+     -d '{"period": 90}' \
      http://localhost:3000/plot \
      --output forecast_plot.png
 ```
@@ -70,7 +70,7 @@ curl -s \
 curl -s \
      -X POST \
      -H "Content-Type: application/json" \
-     -d '{"days": 365}' \
+     -d '{"period": 365}' \
      http://localhost:3000/plot_components \
      --output components_plot.png
 ```
@@ -82,13 +82,13 @@ import bentoml
 
 with bentoml.SyncHTTPClient("http://localhost:3000") as client:
     # Get predictions for next 30 days
-    forecast = client.predict(days=30)
+    forecast = client.predict(period=30)
     
     # Get forecast plot
-    plot_image = client.plot(days=90)
+    plot_image = client.plot(period=90)
     
     # Get components analysis
-    components_plot = client.plot_components(days=365)
+    components_plot = client.plot_components(period=365)
 ```
 
 ## Deploy to BentoCloud

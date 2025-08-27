@@ -30,22 +30,22 @@ class ProphetService:
             self.model = model_from_json(fin.read())
 
     @bentoml.api()
-    def predict(self, days: int = 365) -> pd.DataFrame:
-        future = self.model.make_future_dataframe(periods=days)
+    def predict(self, period: int = 365) -> pd.DataFrame:
+        future = self.model.make_future_dataframe(periods=period)
         forecast = self.model.predict(future)
-        return forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].tail(days)
+        return forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]].tail(period)
 
     @bentoml.api()
-    def plot(self, days: int = 365) -> Image:
-        future = self.model.make_future_dataframe(periods=days)
+    def plot(self, period: int = 365) -> Image:
+        future = self.model.make_future_dataframe(periods=period)
         forecast = self.model.predict(future)
         fig = self.model.plot(forecast)
 
         return fig_to_pil(fig)
 
     @bentoml.api()
-    def plot_components(self, days: int = 365) -> Image:
-        future = self.model.make_future_dataframe(periods=days)
+    def plot_components(self, period: int = 365) -> Image:
+        future = self.model.make_future_dataframe(periods=period)
         forecast = self.model.predict(future)
         fig = self.model.plot_components(forecast)
 
